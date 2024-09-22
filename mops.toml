@@ -1,0 +1,13 @@
+[package]
+name = "noise"
+version = "0.1.0"
+description = "Generate noise using Perlin and gradient noise functions"
+repository = ""
+keywords = [ "perlin-noise", "gradient-noise", "procedural-generation" ]
+license = "MIT"
+
+[dev-dependencies]
+test = "2.0.0"
+
+[dependencies]
+base = "0.13.0"
