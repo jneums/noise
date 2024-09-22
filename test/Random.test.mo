@@ -1,21 +1,7 @@
 import { test; suite; expect } "mo:test";
 import Nat64 "mo:base/Nat64";
 import Int64 "mo:base/Int64";
-import {
-  mcStepSeed;
-  xSetSeed;
-  xNextNat;
-  xNextInt;
-  xNextFloat;
-  nextInt;
-  nextFloat;
-  setAttemptSeed;
-  next;
-  setSeed;
-  nextNat;
-  chunkGenerateRnd;
-  getVoronoiSHA;
-} "../src/Random";
+import Random "../src/Random";
 
 suite(
   "Random Functions",
@@ -26,7 +12,7 @@ suite(
     test(
       "mcStepSeed",
       func() {
-        let result = mcStepSeed(seed, salt);
+        let result = Random.mcStepSeed(seed, salt);
         expect.nat64(result).equal(17492951551070516501);
       },
     );
@@ -34,66 +20,66 @@ suite(
     test(
       "xSetSeed",
       func() {
-        let xoroshiro = xSetSeed(seed);
+        let xoroshiro = Random.xSetSeed(seed);
         expect.nat64(xoroshiro.low).equal(8769092525673015319);
         expect.nat64(xoroshiro.high).equal(10965470254048619885);
       },
     );
 
     test(
-      "xNextNat",
+      "xNextNat64",
       func() {
-        var xoroshiro = xSetSeed(seed);
-        let first = xNextNat(xoroshiro);
-        let second = xNextNat(xoroshiro);
-        let third = xNextNat(xoroshiro);
+        var xoroshiro = Random.xSetSeed(seed);
+        let first = Random.xNextNat64(xoroshiro);
+        let second = Random.xNextNat64(xoroshiro);
+        let third = Random.xNextNat64(xoroshiro);
 
         // Reset the seed and generate the sequence again
-        xoroshiro := xSetSeed(seed);
-        expect.nat64(xNextNat(xoroshiro)).equal(first);
-        expect.nat64(xNextNat(xoroshiro)).equal(second);
-        expect.nat64(xNextNat(xoroshiro)).equal(third);
+        xoroshiro := Random.xSetSeed(seed);
+        expect.nat64(Random.xNextNat64(xoroshiro)).equal(first);
+        expect.nat64(Random.xNextNat64(xoroshiro)).equal(second);
+        expect.nat64(Random.xNextNat64(xoroshiro)).equal(third);
       },
     );
 
     test(
-      "xNextInt",
+      "xNextNat32",
       func() {
-        var xoroshiro = xSetSeed(seed);
-        let first = xNextInt(xoroshiro, 100);
-        let second = xNextInt(xoroshiro, 100);
-        let third = xNextInt(xoroshiro, 100);
+        var xoroshiro = Random.xSetSeed(seed);
+        let first = Random.xNextNat32(xoroshiro, 100);
+        let second = Random.xNextNat32(xoroshiro, 100);
+        let third = Random.xNextNat32(xoroshiro, 100);
 
         // Reset the seed and generate the sequence again
-        xoroshiro := xSetSeed(seed);
-        expect.nat32(xNextInt(xoroshiro, 100)).equal(first);
-        expect.nat32(xNextInt(xoroshiro, 100)).equal(second);
-        expect.nat32(xNextInt(xoroshiro, 100)).equal(third);
+        xoroshiro := Random.xSetSeed(seed);
+        expect.nat32(Random.xNextNat32(xoroshiro, 100)).equal(first);
+        expect.nat32(Random.xNextNat32(xoroshiro, 100)).equal(second);
+        expect.nat32(Random.xNextNat32(xoroshiro, 100)).equal(third);
       },
     );
 
     test(
       "xNextFloat sequence",
       func() {
-        var xoroshiro = xSetSeed(seed);
-        let first = xNextFloat(xoroshiro);
+        var xoroshiro = Random.xSetSeed(seed);
+        let first = Random.xNextFloat(xoroshiro);
         assert first >= 0.0;
         assert first < 1.0;
-        let second = xNextFloat(xoroshiro);
-        let third = xNextFloat(xoroshiro);
+        let second = Random.xNextFloat(xoroshiro);
+        let third = Random.xNextFloat(xoroshiro);
 
         // Reset the seed and generate the sequence again
-        xoroshiro := xSetSeed(seed);
-        assert (xNextFloat(xoroshiro) == first);
-        assert (xNextFloat(xoroshiro) == second);
-        assert (xNextFloat(xoroshiro) == third);
+        xoroshiro := Random.xSetSeed(seed);
+        assert (Random.xNextFloat(xoroshiro) == first);
+        assert (Random.xNextFloat(xoroshiro) == second);
+        assert (Random.xNextFloat(xoroshiro) == third);
       },
     );
 
     test(
-      "nextInt",
+      "nextNat32",
       func() {
-        let result = nextInt(seed, 100);
+        let result = Random.nextNat32(seed, 100);
         expect.nat32(result).lessOrEqual(100);
       },
     );
@@ -101,7 +87,7 @@ suite(
     test(
       "nextFloat",
       func() {
-        let result = nextFloat(seed);
+        let result = Random.nextFloat(seed);
         assert result >= 0.0;
         assert result < 1.0;
       },
@@ -112,7 +98,7 @@ suite(
       func() {
         let cx : Int64 = 10;
         let cz : Int64 = 20;
-        let result = setAttemptSeed(seed, cx, cz);
+        let result = Random.setAttemptSeed(seed, cx, cz);
         expect.nat64(result).notEqual(seed);
       },
     );
@@ -120,7 +106,7 @@ suite(
     test(
       "next",
       func() {
-        let (newSeed, int) = next(seed, 31);
+        let (newSeed, int) = Random.next(seed, 31);
         expect.nat64(newSeed).notEqual(seed);
         expect.nat32(int).lessOrEqual(2147483647); // 2^31 - 1
       },
@@ -129,15 +115,15 @@ suite(
     test(
       "setSeed",
       func() {
-        let result = setSeed(seed);
+        let result = Random.setSeed(seed);
         expect.nat64(result).notEqual(seed);
       },
     );
 
     test(
-      "nextNat",
+      "nextNat64",
       func() {
-        let result = nextNat(seed);
+        let result = Random.nextNat64(seed);
         expect.nat64(result).notEqual(seed);
       },
     );
@@ -147,7 +133,7 @@ suite(
       func() {
         let chunkX : Int64 = 10;
         let chunkZ : Int64 = 20;
-        let result = chunkGenerateRnd(seed, chunkX, chunkZ);
+        let result = Random.chunkGenerateRnd(seed, chunkX, chunkZ);
         expect.nat64(result).notEqual(seed);
       },
     );
@@ -155,7 +141,7 @@ suite(
     test(
       "getVoronoiSHA",
       func() {
-        let result = getVoronoiSHA(seed);
+        let result = Random.getVoronoiSHA(seed);
         expect.nat64(result).notEqual(seed);
       },
     );
@@ -164,71 +150,71 @@ suite(
     test(
       "xNextNat sequence",
       func() {
-        var xoroshiro = xSetSeed(seed);
-        let first = xNextNat(xoroshiro);
-        let second = xNextNat(xoroshiro);
-        let third = xNextNat(xoroshiro);
+        var xoroshiro = Random.xSetSeed(seed);
+        let first = Random.xNextNat64(xoroshiro);
+        let second = Random.xNextNat64(xoroshiro);
+        let third = Random.xNextNat64(xoroshiro);
 
         // Reset the seed and generate the sequence again
-        xoroshiro := xSetSeed(seed);
-        expect.nat64(xNextNat(xoroshiro)).equal(first);
-        expect.nat64(xNextNat(xoroshiro)).equal(second);
-        expect.nat64(xNextNat(xoroshiro)).equal(third);
+        xoroshiro := Random.xSetSeed(seed);
+        expect.nat64(Random.xNextNat64(xoroshiro)).equal(first);
+        expect.nat64(Random.xNextNat64(xoroshiro)).equal(second);
+        expect.nat64(Random.xNextNat64(xoroshiro)).equal(third);
       },
     );
 
     test(
-      "xNextInt sequence",
+      "xNextNat32 sequence",
       func() {
-        var xoroshiro = xSetSeed(seed);
-        let first = xNextInt(xoroshiro, 100);
-        let second = xNextInt(xoroshiro, 100);
-        let third = xNextInt(xoroshiro, 100);
+        var xoroshiro = Random.xSetSeed(seed);
+        let first = Random.xNextNat32(xoroshiro, 100);
+        let second = Random.xNextNat32(xoroshiro, 100);
+        let third = Random.xNextNat32(xoroshiro, 100);
 
         // Reset the seed and generate the sequence again
-        xoroshiro := xSetSeed(seed);
-        expect.nat32(xNextInt(xoroshiro, 100)).equal(first);
-        expect.nat32(xNextInt(xoroshiro, 100)).equal(second);
-        expect.nat32(xNextInt(xoroshiro, 100)).equal(third);
+        xoroshiro := Random.xSetSeed(seed);
+        expect.nat32(Random.xNextNat32(xoroshiro, 100)).equal(first);
+        expect.nat32(Random.xNextNat32(xoroshiro, 100)).equal(second);
+        expect.nat32(Random.xNextNat32(xoroshiro, 100)).equal(third);
       },
     );
 
     test(
       "xNextFloat sequence",
       func() {
-        var xoroshiro = xSetSeed(seed);
-        let first = xNextFloat(xoroshiro);
-        let second = xNextFloat(xoroshiro);
-        let third = xNextFloat(xoroshiro);
+        var xoroshiro = Random.xSetSeed(seed);
+        let first = Random.xNextFloat(xoroshiro);
+        let second = Random.xNextFloat(xoroshiro);
+        let third = Random.xNextFloat(xoroshiro);
 
         // Reset the seed and generate the sequence again
-        xoroshiro := xSetSeed(seed);
-        assert (xNextFloat(xoroshiro) == first);
-        assert (xNextFloat(xoroshiro) == second);
-        assert (xNextFloat(xoroshiro) == third);
+        xoroshiro := Random.xSetSeed(seed);
+        assert (Random.xNextFloat(xoroshiro) == first);
+        assert (Random.xNextFloat(xoroshiro) == second);
+        assert (Random.xNextFloat(xoroshiro) == third);
       },
     );
 
     // Additional tests for edge cases and boundary values
     test(
-      "xNextInt edge cases",
+      "xNextNat32 edge cases",
       func() {
-        var xoroshiro = xSetSeed(seed);
-        let result1 = xNextInt(xoroshiro, 1);
+        var xoroshiro = Random.xSetSeed(seed);
+        let result1 = Random.xNextNat32(xoroshiro, 1);
         expect.nat32(result1).equal(0);
 
-        let result2 = xNextInt(xoroshiro, 0xffffffff);
+        let result2 = Random.xNextNat32(xoroshiro, 0xffffffff);
         expect.nat32(result2).lessOrEqual(0xffffffff);
       },
     );
 
     test(
-      "nextInt edge cases",
+      "nextNat32 edge cases",
       func() {
-        let result1 = nextInt(seed, 1);
+        let result1 = Random.nextNat32(seed, 1);
         expect.nat32(result1).equal(0);
 
-        let result2 = nextInt(seed, 0xffffffff);
+        let result2 = Random.nextNat32(seed, 0xffffffff);
         expect.nat32(result2).lessOrEqual(0xffffffff);
       },
     );
@@ -236,7 +222,7 @@ suite(
     test(
       "nextFloat boundary values",
       func() {
-        let result = nextFloat(seed);
+        let result = Random.nextFloat(seed);
         assert result >= 0.0;
         assert result < 1.0;
       },
@@ -245,8 +231,8 @@ suite(
     test(
       "xNextFloat boundary values",
       func() {
-        var xoroshiro = xSetSeed(seed);
-        let result = xNextFloat(xoroshiro);
+        var xoroshiro = Random.xSetSeed(seed);
+        let result = Random.xNextFloat(xoroshiro);
         assert result >= 0.0;
         assert result < 1.0;
       },

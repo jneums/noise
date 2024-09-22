@@ -60,7 +60,7 @@ module {
   ///
   /// Returns
   /// A new nat value.
-  public func xNextNat(xr : T.Xoroshiro) : Nat64 {
+  public func xNextNat64(xr : T.Xoroshiro) : Nat64 {
     let l = xr.low;
     let h = xr.high;
     let n = Nat64.addWrap(Nat64.bitrotLeft(Nat64.addWrap(l, h), 17), l);
@@ -72,19 +72,19 @@ module {
     return n;
   };
 
-  /// Generates the next integer value from the Xoroshiro state within a given range.
+  /// Generates the next Nat32 value from the Xoroshiro state within a given range.
   ///
   /// Arguments
   /// - `state`: The current state of the Xoroshiro generator.
-  /// - `bound`: The upper bound for the generated integer.
+  /// - `bound`: The upper bound for the generated Nat32 value.
   ///
   /// Returns
-  /// A new integer value within the specified range.
-  public func xNextInt(state : T.Xoroshiro, bound : Nat32) : Nat32 {
-    var r = Nat64.mulWrap(Nat64.bitand(xNextNat(state), 0xffffffff), Nat64.fromNat32(bound));
+  /// A new Nat32 value within the specified range.
+  public func xNextNat32(state : T.Xoroshiro, bound : Nat32) : Nat32 {
+    var r = Nat64.mulWrap(Nat64.bitand(xNextNat64(state), 0xffffffff), Nat64.fromNat32(bound));
     if (Nat64.bitand(r, 0xffffffff) < Nat64.fromNat32(bound)) {
       while (Nat64.bitand(r, 0xffffffff) < Nat64.fromNat32(Nat32.subWrap(Nat32.bitnot(bound), 1)) % Nat64.fromNat32(bound)) {
-        r := Nat64.mulWrap(Nat64.bitand(xNextNat(state), 0xffffffff), Nat64.fromNat32(bound));
+        r := Nat64.mulWrap(Nat64.bitand(xNextNat64(state), 0xffffffff), Nat64.fromNat32(bound));
       };
     };
     return Nat32.fromNat64(Nat64.bitshiftRight(r, 32));
@@ -98,18 +98,18 @@ module {
   /// Returns
   /// A new float value between 0.0 and 1.0.
   public func xNextFloat(state : T.Xoroshiro) : Float {
-    return Float.fromInt64(Int64.fromNat64(xNextNat(state) >> 11)) * 1.1102230246251565e-16;
+    return Float.fromInt64(Int64.fromNat64(xNextNat64(state) >> 11)) * 1.1102230246251565e-16;
   };
 
-  /// Generates the next integer value from a given seed within a specified range.
+  /// Generates the next Nat32 value from a given seed within a specified range.
   ///
   /// Arguments
   /// - `seed`: The seed value.
-  /// - `bound`: The upper bound for the generated integer.
+  /// - `bound`: The upper bound for the generated Nat32.
   ///
   /// Returns
-  /// A new integer value within the specified range.
-  public func nextInt(seed : Nat64, bound : Nat32) : Nat32 {
+  /// A new Nat32 value within the specified range.
+  public func nextNat32(seed : Nat64, bound : Nat32) : Nat32 {
     let m = Nat32.subWrap(bound, 1);
     var xSeed = seed;
 
@@ -192,7 +192,7 @@ module {
   ///
   /// Returns
   /// A new nat value.
-  public func nextNat(seed : Nat64) : Nat64 {
+  public func nextNat64(seed : Nat64) : Nat64 {
     return Nat64.add(Nat64.bitshiftLeft(Nat64.fromNat32(next(seed, 32).1), 32), Nat64.fromNat32(next(seed, 32).1));
   };
 
@@ -210,8 +210,8 @@ module {
 
     rnd := Nat64.bitxor(
       Nat64.bitxor(
-        Nat64.mulWrap(nextNat(rnd), Int64.toNat64(chunkX)),
-        Nat64.mulWrap(nextNat(rnd), Int64.toNat64(chunkZ)),
+        Nat64.mulWrap(nextNat64(rnd), Int64.toNat64(chunkX)),
+        Nat64.mulWrap(nextNat64(rnd), Int64.toNat64(chunkZ)),
       ),
       seed,
     );

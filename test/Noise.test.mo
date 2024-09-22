@@ -1,27 +1,10 @@
 import { test; suite; expect } "mo:test";
 import Nat64 "mo:base/Nat64";
 import Float "mo:base/Float";
-import Array "mo:base/Array";
 import Iter "mo:base/Iter";
 import Nat32 "mo:base/Nat32";
-import Debug "mo:base/Debug";
-import Int "mo:base/Int";
-import Text "mo:base/Text";
-import Nat8 "mo:base/Nat8";
-import Nat "mo:base/Nat";
-import { xSetSeed } "../src/Random";
-import {
-  xPerlinInit;
-  xOctaveInit;
-  xDoublePerlinInit;
-  samplePerlinNoise;
-  sampleOctaves;
-  sampleDoublePerlinNoise;
-  getIndexedLerp;
-  getVoronoiSrcRange;
-  getVoronoiCell;
-  voronoiAccess3D;
-} "../src/Noise";
+import Random "../src/Random";
+import Noise "../src/Noise";
 import T "../src/Types";
 
 suite(
@@ -32,8 +15,8 @@ suite(
     test(
       "xPerlinInit",
       func() {
-        let xoroshiro = xSetSeed(seed);
-        let perlinNoise = xPerlinInit(xoroshiro);
+        let xoroshiro = Random.xSetSeed(seed);
+        let perlinNoise = Noise.xPerlinInit(xoroshiro);
 
         // Check that the Perlin noise instance is initialized correctly
         assert perlinNoise.a != 0.0;
@@ -59,9 +42,9 @@ suite(
     test(
       "xOctaveInit",
       func() {
-        let xoroshiro = xSetSeed(seed);
+        let xoroshiro = Random.xSetSeed(seed);
         let amplitudes : [Float] = [1.0, 0.5, 0.25];
-        let octaves = xOctaveInit(xoroshiro, amplitudes, -3, amplitudes.size(), 3);
+        let octaves = Noise.xOctaveInit(xoroshiro, amplitudes, -3, amplitudes.size(), 3);
 
         // Check that the Octaves instance is initialized correctly
         expect.nat(octaves.size()).equal(3);
@@ -77,9 +60,9 @@ suite(
     test(
       "xDoublePerlinInit",
       func() {
-        let xoroshiro = xSetSeed(seed);
+        let xoroshiro = Random.xSetSeed(seed);
         let amplitudes : [Float] = [1.0, 0.5, 0.25];
-        let doublePerlinNoise = xDoublePerlinInit(xoroshiro, amplitudes, -3, amplitudes.size(), 3);
+        let doublePerlinNoise = Noise.xDoublePerlinInit(xoroshiro, amplitudes, -3, amplitudes.size(), 3);
 
         // Check that the Double Perlin noise instance is initialized correctly
         assert doublePerlinNoise.amplitude != 0.0;
@@ -91,11 +74,11 @@ suite(
     test(
       "samplePerlinNoise",
       func() {
-        let xoroshiro = xSetSeed(seed);
-        let perlinNoise = xPerlinInit(xoroshiro);
+        let xoroshiro = Random.xSetSeed(seed);
+        let perlinNoise = Noise.xPerlinInit(xoroshiro);
 
         // Sample the Perlin noise at a given point
-        let noiseValue = samplePerlinNoise(perlinNoise, 0.5, 0.5, 0.5, 0.0, 0.0);
+        let noiseValue = Noise.samplePerlinNoise(perlinNoise, 0.5, 0.5, 0.5, 0.0, 0.0);
 
         // Check that the noise value is within the expected range
         assert noiseValue >= -1.0;
@@ -106,12 +89,12 @@ suite(
     test(
       "sampleOctaves",
       func() {
-        let xoroshiro = xSetSeed(seed);
+        let xoroshiro = Random.xSetSeed(seed);
         let amplitudes : [Float] = [1.0, 0.5, 0.25];
-        let octaves = xOctaveInit(xoroshiro, amplitudes, 0, amplitudes.size(), 3);
+        let octaves = Noise.xOctaveInit(xoroshiro, amplitudes, 0, amplitudes.size(), 3);
 
         // Sample the Octave noise at a given point
-        let noiseValue = sampleOctaves(octaves, 0.5, 0.5, 0.5);
+        let noiseValue = Noise.sampleOctaves(octaves, 0.5, 0.5, 0.5);
 
         // Check that the noise value is within the expected range
         assert noiseValue >= -1.0;
@@ -122,27 +105,16 @@ suite(
     test(
       "sampleDoublePerlinNoise",
       func() {
-        let xoroshiro = xSetSeed(seed);
+        let xoroshiro = Random.xSetSeed(seed);
         let amplitudes : [Float] = [1.0, 0.5, 0.25];
-        let doublePerlinNoise = xDoublePerlinInit(xoroshiro, amplitudes, 0, amplitudes.size(), 3);
+        let doublePerlinNoise = Noise.xDoublePerlinInit(xoroshiro, amplitudes, 0, amplitudes.size(), 3);
 
         // Sample the Double Perlin noise at a given point
-        let noiseValue = sampleDoublePerlinNoise(doublePerlinNoise, 0.5, 0.5, 0.5);
+        let noiseValue = Noise.sampleDoublePerlinNoise(doublePerlinNoise, 0.5, 0.5, 0.5);
 
         // Check that the noise value is within the expected range
         assert noiseValue >= -1.0;
         assert noiseValue <= 1.0;
-      },
-    );
-
-    test(
-      "getIndexedLerp",
-      func() {
-        // Test the getIndexedLerp function with various indices
-        assert getIndexedLerp(0, 1.0, 2.0, 3.0) == 3.0;
-        assert getIndexedLerp(1, 1.0, 2.0, 3.0) == 1.0;
-        assert getIndexedLerp(2, 1.0, 2.0, 3.0) == -1.0;
-        assert getIndexedLerp(3, 1.0, 2.0, 3.0) == -3.0;
       },
     );
 
@@ -158,7 +130,7 @@ suite(
           var sz = 16;
           var sy = 16;
         };
-        let srcRange = getVoronoiSrcRange(range);
+        let srcRange = Noise.getVoronoiSrcRange(range);
 
         // Check that the source range is computed correctly
         expect.int32(srcRange.x).equal(-1);
@@ -174,7 +146,7 @@ suite(
       "getVoronoiCell",
       func() {
         let sha : Nat64 = 1234567890123456789;
-        let (x, y, z) = getVoronoiCell(sha, 0, 0, 0);
+        let (x, y, z) = Noise.getVoronoiCell(sha, 0, 0, 0);
 
         // Check that the Voronoi cell coordinates are within the expected range
         expect.int64(x).greaterOrEqual(-18432);
@@ -190,7 +162,7 @@ suite(
       "voronoiAccess3D",
       func() {
         let sha : Nat64 = 1234567890123456789;
-        let (x, y, z) = voronoiAccess3D(sha, 0, 0, 0);
+        let (x, y, z) = Noise.voronoiAccess3D(sha, 0, 0, 0);
 
         // Check that the Voronoi noise coordinates are within the expected range
         expect.int64(x).greaterOrEqual(-18432);
@@ -201,44 +173,5 @@ suite(
         expect.int64(z).lessOrEqual(18432);
       },
     );
-
-    // test(
-    //   "generate2DNoiseMap",
-    //   func() {
-    //     let width = 50;
-    //     let height = 50;
-    //     let scale = 6.0;
-    //     let seed : Nat64 = 1234567890123456789;
-
-    //     let noiseMap = generate2DNoiseMap(width, height, scale, seed);
-
-    //     // Check that the noise map has the correct dimensions
-    //     expect.nat(noiseMap.size()).equal(width);
-    //     expect.nat(noiseMap[0].size()).equal(height);
-
-    //     // Optionally, print the noise map for visual inspection
-    //     // printNoiseMap(noiseMap);
-    //   },
-    // );
-
-    // test(
-    //   "generateImageData",
-    //   func() {
-    //     let width = 50;
-    //     let height = 50;
-    //     let scale = 10.0;
-    //     let seed : Nat64 = 1234567890123456789;
-
-    //     let noiseMap = generate2DNoiseMap(width, height, scale, seed);
-    //     let imageData = generateImageData(noiseMap);
-
-    //     // Check that the image data has the correct dimensions
-    //     expect.nat(imageData.size()).equal(width);
-    //     expect.nat(imageData[0].size()).equal(height);
-
-    //     // Optionally, print the image data for visual inspection
-    //     // printImageData(imageData);
-    //   },
-    // );
   },
 );

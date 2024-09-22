@@ -8,9 +8,8 @@ import Iter "mo:base/Iter";
 import Buffer "mo:base/Buffer";
 import Int "mo:base/Int";
 import Nat "mo:base/Nat";
-import Debug "mo:base/Debug";
-import { mcStepSeed; xNextFloat; xNextInt; xNextNat } "Random";
-import { lerp } "Math";
+import Random "Random";
+import Math "Math";
 import T "Types";
 
 module {
@@ -23,9 +22,9 @@ module {
   /// A new PerlinNoise instance.
   public func xPerlinInit(xr : T.Xoroshiro) : T.PerlinNoise {
     let noise : T.PerlinNoise = {
-      var a = xNextFloat(xr) * 256.0;
-      var b = xNextFloat(xr) * 256.0;
-      var c = xNextFloat(xr) * 256.0;
+      var a = Random.xNextFloat(xr) * 256.0;
+      var b = Random.xNextFloat(xr) * 256.0;
+      var c = Random.xNextFloat(xr) * 256.0;
       var d = Array.init<Nat32>(512, 0);
       var amplitude = 1.0;
       var lacunarity = 1.0;
@@ -37,7 +36,7 @@ module {
 
     for (i in Iter.range(0, 255)) {
       let i32 = Nat32.fromNat(i);
-      let j = Nat32.toNat(xNextInt(xr, 256 - i32) + i32);
+      let j = Nat32.toNat(Random.xNextNat32(xr, 256 - i32) + i32);
       let n = noise.d[i];
       noise.d[i] := noise.d[j];
       noise.d[j] := n;
@@ -114,8 +113,8 @@ module {
 
     var lacuna = lacuna_ini[Int.abs(omin)];
     var persist = persist_ini[lelength];
-    let xLow = xNextNat(xr);
-    let xHigh = xNextNat(xr);
+    let xLow = Random.xNextNat64(xr);
+    let xHigh = Random.xNextNat64(xr);
     var n : Nat32 = 0;
 
     label iter for (i in Iter.range(0, lelength - 1)) {
@@ -259,72 +258,6 @@ module {
     return v;
   };
 
-  /// Computes the indexed linear interpolation for given values.
-  ///
-  /// Arguments
-  /// - `idx`: The index value.
-  /// - `a`: The first value.
-  /// - `b`: The second value.
-  /// - `c`: The third value.
-  ///
-  /// Returns
-  /// The interpolated value.
-  public func getIndexedLerp(idx : Nat32, a : Float, b : Float, c : Float) : Float {
-    switch (idx & 0xf) {
-      case (0) {
-        return a + b;
-      };
-      case (1) {
-        return -a + b;
-      };
-      case 2 {
-        return a - b;
-      };
-      case 3 {
-        return -a - b;
-      };
-      case 4 {
-        return a + c;
-      };
-      case 5 {
-        return -a + c;
-      };
-      case 6 {
-        return a - c;
-      };
-      case 7 {
-        return -a - c;
-      };
-      case 8 {
-        return b + c;
-      };
-      case 9 {
-        return -b + c;
-      };
-      case 10 {
-        return b - c;
-      };
-      case 11 {
-        return -b - c;
-      };
-      case 12 {
-        return a + b;
-      };
-      case 13 {
-        return -b + c;
-      };
-      case 14 {
-        return -a + b;
-      };
-      case 15 {
-        return -b - c;
-      };
-      case (_) {
-        return 0.0;
-      };
-    };
-  };
-
   /// Samples the Perlin noise at a given point.
   ///
   /// Arguments
@@ -376,24 +309,24 @@ module {
     let b2 = idx[Nat32.toNat(b1)] + Int32.toNat32(k);
     let b3 = idx[Nat32.toNat(b1) + 1] + Int32.toNat32(k);
 
-    var l1 = getIndexedLerp(idx[Nat32.toNat(a2)], _d1, _d2, _d3);
-    var l2 = getIndexedLerp(idx[Nat32.toNat(b2)], _d1 - 1.0, _d2, _d3);
-    var l3 = getIndexedLerp(idx[Nat32.toNat(a3)], _d1, _d2 - 1.0, _d3);
-    var l4 = getIndexedLerp(idx[Nat32.toNat(b3)], _d1 - 1.0, _d2 - 1.0, _d3);
-    var l5 = getIndexedLerp(idx[Nat32.toNat(a2) + 1], _d1, _d2, _d3 - 1.0);
-    var l6 = getIndexedLerp(idx[Nat32.toNat(b2) + 1], _d1 - 1.0, _d2, _d3 - 1.0);
-    var l7 = getIndexedLerp(idx[Nat32.toNat(a3) + 1], _d1, _d2 - 1.0, _d3 - 1.0);
-    var l8 = getIndexedLerp(idx[Nat32.toNat(b3) + 1], _d1 - 1.0, _d2 - 1.0, _d3 - 1.0);
+    var l1 = Math.getIndexedLerp(idx[Nat32.toNat(a2)], _d1, _d2, _d3);
+    var l2 = Math.getIndexedLerp(idx[Nat32.toNat(b2)], _d1 - 1.0, _d2, _d3);
+    var l3 = Math.getIndexedLerp(idx[Nat32.toNat(a3)], _d1, _d2 - 1.0, _d3);
+    var l4 = Math.getIndexedLerp(idx[Nat32.toNat(b3)], _d1 - 1.0, _d2 - 1.0, _d3);
+    var l5 = Math.getIndexedLerp(idx[Nat32.toNat(a2) + 1], _d1, _d2, _d3 - 1.0);
+    var l6 = Math.getIndexedLerp(idx[Nat32.toNat(b2) + 1], _d1 - 1.0, _d2, _d3 - 1.0);
+    var l7 = Math.getIndexedLerp(idx[Nat32.toNat(a3) + 1], _d1, _d2 - 1.0, _d3 - 1.0);
+    var l8 = Math.getIndexedLerp(idx[Nat32.toNat(b3) + 1], _d1 - 1.0, _d2 - 1.0, _d3 - 1.0);
 
-    l1 := lerp(t1, l1, l2);
-    l3 := lerp(t1, l3, l4);
-    l5 := lerp(t1, l5, l6);
-    l7 := lerp(t1, l7, l8);
+    l1 := Math.lerp(t1, l1, l2);
+    l3 := Math.lerp(t1, l3, l4);
+    l5 := Math.lerp(t1, l5, l6);
+    l7 := Math.lerp(t1, l7, l8);
 
-    l1 := lerp(t2, l1, l3);
-    l5 := lerp(t2, l5, l7);
+    l1 := Math.lerp(t2, l1, l3);
+    l5 := Math.lerp(t2, l5, l7);
 
-    let result = lerp(t3, l1, l5);
+    let result = Math.lerp(t3, l1, l5);
 
     return result;
   };
@@ -451,15 +384,15 @@ module {
     var s = sha;
 
     for (i in Iter.range(0, 1)) {
-      s := mcStepSeed(s, Int64.toNat64(a));
-      s := mcStepSeed(s, Int64.toNat64(b));
-      s := mcStepSeed(s, Int64.toNat64(c));
+      s := Random.mcStepSeed(s, Int64.toNat64(a));
+      s := Random.mcStepSeed(s, Int64.toNat64(b));
+      s := Random.mcStepSeed(s, Int64.toNat64(c));
     };
 
     let x = (Int64.fromNat64(Nat64.bitshiftRight(s, 24)) & 1023 - 512) * 36;
-    s := mcStepSeed(s, sha);
+    s := Random.mcStepSeed(s, sha);
     let y = (Int64.fromNat64(Nat64.bitshiftRight(s, 24)) & 1023 - 512) * 36;
-    s := mcStepSeed(s, sha);
+    s := Random.mcStepSeed(s, sha);
     let z = (Int64.fromNat64(Nat64.bitshiftRight(s, 24)) & 1023 - 512) * 36;
 
     return (x, y, z);
