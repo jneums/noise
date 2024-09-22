@@ -2,7 +2,7 @@
 name = "noise"
 version = "0.1.0"
 description = "Generate noise using Perlin and gradient noise functions"
-repository = ""
+repository = "https://github.com/jneums/noise"
 keywords = [ "perlin-noise", "gradient-noise", "procedural-generation" ]
 license = "MIT"
 
@@ -11,3 +11,6 @@ test = "2.0.0"
 
 [dependencies]
 base = "0.13.0"
+
+[toolchain]
+moc = "0.13.0"
